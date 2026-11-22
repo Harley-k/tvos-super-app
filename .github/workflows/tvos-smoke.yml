@@ -1,0 +1,28 @@
+name: SuperTV 0.1.0 exact-source smoke
+run-name: SuperTV 0.1.0 exact-source smoke
+on:
+  workflow_dispatch:
+    inputs:
+      expected_commit:
+        description: Exact 40-hex commit of this tested snapshot
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: macos-26
+    timeout-minutes: 15
+    steps:
+      - name: Read exact requested commit
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+      - name: Verify and launch the unmodified tvOS 0.1.0
+        shell: bash
+        env:
+          EXPECTED_COMMIT: ${{ inputs.expected_commit }}
+        run: bash ci/tvos-smoke.sh
