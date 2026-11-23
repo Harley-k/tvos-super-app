@@ -1,10 +1,10 @@
 name: SuperTV 0.2.0 macOS and tvOS verification
-run-name: SuperTV 0.2.0 dual-platform verification
+run-name: tvOS import focus baseline then conditional patch
 on:
   workflow_dispatch:
     inputs:
       expected_commit:
-        description: Exact 40-hex commit containing the sealed 0.2.0 source
+        description: Exact 40-hex commit containing this isolated focus comparison
         required: true
         type: string
 
@@ -12,25 +12,24 @@ permissions:
   contents: read
 
 jobs:
-  verify:
+  compare_focus:
+    if: github.ref == 'refs/heads/test/tvos-import-focus'
     runs-on: macos-26
     timeout-minutes: 15
     steps:
-      - name: Read exact requested commit
+      - name: Checkout this diagnostics branch at the requested dispatch commit
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
           fetch-depth: 1
-      - name: Attest and verify the original 0.2.0 bytes
+      - name: Test original vertical route and compare the layout only if indicated
         env:
           EXPECTED_COMMIT: ${{ inputs.expected_commit }}
         shell: bash
-        run: bash ci/release-02/verify.sh
-      - name: Report boundaries
+        run: bash ci/import-focus/run.sh
+      - name: State boundaries
         if: always()
         shell: bash
         run: |
-          printf '%s\n' 'No artifacts, Apple account, Developer ID, notarization, or physical Apple TV install.' \
-            'Mac stage: native bundle launch and separate AVFoundation/decoded-frame probe.' \
-            'tvOS stage: XCTest simulator suite.' \
-            'No external catalog, streaming integrations, audio listening or device tests.'
+          printf '%s\n' 'Original app and main remain unchanged. Test inputs are offline.' \
+            'No artifacts, publishing, signing identities, paid runners, or physical device access.'

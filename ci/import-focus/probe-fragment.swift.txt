@@ -1,0 +1,50 @@
+
+    /// Diagnostic companion to the original test, using only the real directional route.
+    /// No debug hook, programmatic focus, element.tap or direct submit call.
+    @MainActor
+    func testBaselineRemoteVerticalImport() throws {
+        let app = startCleanApp()
+        try choose("source-import", in: app)
+        let url = element("source-url", in: app)
+        let submit = element("source-import-submit", in: app)
+        let error = element("source-error", in: app)
+        XCTAssertTrue(url.waitForExistence(timeout: 6), "BASELINE_SETUP_FAILED: URL field missing")
+        XCTAssertTrue(submit.waitForExistence(timeout: 6), "BASELINE_SETUP_FAILED: submit button missing")
+        guard url.exists, submit.exists else { return }
+
+        let remote = XCUIRemote.shared
+        // On 0.2.0 the real log observed Picker (单个视频) takes initial focus and Down reaches URL.
+        for _ in 0..<2 where !url.hasFocus { remote.press(.down) }
+        XCTAssertTrue(url.hasFocus, "BASELINE_SETUP_FAILED: did not establish logged URL focus")
+        guard url.hasFocus else { return }
+        NSLog("SUPERTV_BASELINE_URL_FOCUSED %@", focusedNames(in: app))
+        for index in 1...3 {
+            guard !submit.hasFocus else { break }
+            remote.press(.down)
+            NSLog("SUPERTV_BASELINE_DOWN_%d %@", index, focusedNames(in: app))
+        }
+        XCTAssertTrue(submit.hasFocus, "BASELINE_VERTICAL_ROUTE_BLOCKED: three Down presses from focused URL did not reach submit")
+        guard submit.hasFocus else { return }
+
+        remote.press(.select)
+        XCTAssertTrue(error.waitForExistence(timeout: 5), "BASELINE_VALIDATION_FAILED: submit reached, but no validation message")
+        XCTAssertTrue(url.exists, "Address field should remain editable")
+        XCTAssertTrue(submit.exists)
+        guard error.exists, url.exists, submit.exists else { return }
+
+        // Validate recovery and resubmission through the even simpler vertical route.
+        for _ in 0..<3 where !url.hasFocus { remote.press(.up) }
+        XCTAssertTrue(url.hasFocus, "BASELINE_VERTICAL_ROUTE_BLOCKED: cannot return from validation to URL via three Up presses")
+        guard url.hasFocus else { return }
+        for _ in 0..<3 where !submit.hasFocus { remote.press(.down) }
+        XCTAssertTrue(submit.hasFocus, "BASELINE_VERTICAL_ROUTE_BLOCKED: cannot return to submit after error")
+        guard submit.hasFocus else { return }
+        NSLog("SUPERTV_BASELINE_VERTICAL_ROUTE_PASSED")
+    }
+
+    @MainActor
+    private func focusedNames(in app: XCUIApplication) -> String {
+        app.descendants(matching: .any).matching(NSPredicate(format: "hasFocus == TRUE"))
+            .allElementsBoundByIndex.filter { !$0.frame.isEmpty }
+            .map { $0.identifier.isEmpty ? $0.label : $0.identifier }.joined(separator: ", ")
+    }

@@ -1,0 +1,13 @@
+# tvOS original-form directional probe (prepared, not run)
+
+Evidence from 0.2.0 job 137424118984: within the import screen, both Address and Submit existed; the original geometric helper moved Picker → URL via Down, then used Left, Up and Right rather than testing Down from URL. This did not prove the production route blocked. The intended original form contains optional Name between URL and Submit. The clean default Video form leaves that input present.
+
+Steps in the prepared probe: enter real Import page; reproduce the confirmed initial route to URL if needed; emit current accessibility focus per actual Down press, at most three, without changing app logic; Select Submit, verify empty HTTPS validation, then directionally return to URL and back. Commitable product 0.2.0 stays unchanged, temporary test-only harness is made by prepare-probe.py. Do not count screenshots, compile, UI existence, or a locator click as a result.
+
+Decision under one authorized check, after booting one simulator: run compare-on-simulator.sh with baseline path, 0.2.1 candidate path and UDID. If real baseline direct route passes, keep product 0.2.0 and adapt the original test to the verified vertical sequence (original validation assertions still required); don't run candidate. If the baseline logs explicit vertical route failure after URL focus, run the separate fixed 0.2.1 candidate's three tests. Compile, simulator setup, URL entry, or validation failures are not proof of layout fail and do not automatically justify switching to candidate. No automatic retry. Print each lane separately and cap caller's single runner at 15 minutes; the provided script does not run any runner.
+
+Budget: the original 0.2 full job already included macOS and ran ~6 min wallclock, and the two playback regressions passed. This comparison is tvOS-only and should use ~3–5 min when only original probe runs, ~7–11 min with conditional candidate; estimates, not evidence. If both lanes cannot complete in one authorized run, report whichever stage actually ran and request any subsequent run separately. Do not touch personal Mac/GitHub or upload test artifacts from this preparation.
+
+## Isolated dispatch
+
+Select branch test/tvos-import-focus from the existing SuperTV 0.2.0 manual workflow (same YAML path on main, no main update). Supply the full diagnostics commit SHA as expected_commit. The branch's job refuses other refs and mismatched commits. New tracked files only store the changed candidate sources; all baseline files and both fixtures are read from the existing exact snapshot. The comparison uses those two blobs without a duplicate upload or repository copy.
