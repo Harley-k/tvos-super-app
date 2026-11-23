@@ -1,0 +1,16 @@
+{
+  "shows": [
+    {
+      "id": "public-wing-it-preview",
+      "title": "WING IT!（用户授权源示例）",
+      "subtitle": "(CC) Blender Foundation | studio.blender.org · Creative Commons Attribution 4.0",
+      "episodes": [
+        {
+          "id": "film",
+          "title": "正片",
+          "streamURL": "https://video.blender.org/object-storage/web_videos/1be4c93c-1fd2-498d-adc7-50126823033e-480.mp4"
+        }
+      ]
+    }
+  ]
+}

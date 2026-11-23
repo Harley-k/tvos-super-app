@@ -1,0 +1,15 @@
+a0119996df6fc26412b5572bf978174e8b7ea71e3333fcc588f4fb7e7be72247  releases/v0.2.0/README.md
+b259ab42f0d3e44727b3ab76cbb76c89e2b296e99d58fa0471c2593bb992f812  releases/v0.2.0/SuperTV.xcodeproj/project.pbxproj
+2161490b15afcdba4270356e4fb2bf27bc78024e8044f66ebbe86a7c0c5766f6  releases/v0.2.0/SuperTV.xcodeproj/xcshareddata/xcschemes/SuperTV-macOS.xcscheme
+714fef2414baab1747e38841f1210fd8d4175d9c4ea5b11f2612855ecc4513c4  releases/v0.2.0/SuperTV.xcodeproj/xcshareddata/xcschemes/SuperTV.xcscheme
+09b0ab30820a1057258149ed84cd7d74f52ac005c6e79e037b9ffaaa6da5a66a  releases/v0.2.0/SuperTV/Catalog.swift
+66b5ded46acdc68d4a551d8cc2e4bfdaf23aaa87df516bed19837948f10a205f  releases/v0.2.0/SuperTV/DemoCatalog.json
+7ec78288dc07c68d4e87990cf70dbbb6049dc5ae7fb50daed5f623aa2a099e9f  releases/v0.2.0/SuperTV/Offline/demo-episode-1.mp4
+c5ff3c151ad9383926f0deda467fc5a5579f0076bc9386558c8189be5acdbc8f  releases/v0.2.0/SuperTV/Offline/demo-episode-2.mp4
+cb27a83ead95ab8c7059b2fbb2748199f860988005de2314bc669af4cff81265  releases/v0.2.0/SuperTV/Player.swift
+79756618a3f885f7a57a361cccb682e24c470ffdd1c0ba6c3efbd928cb247925  releases/v0.2.0/SuperTV/PrivacyInfo.xcprivacy
+d1d896978871a099f21177d67de724db6f35c82ba1196aa3ec45ed0ab36a3908  releases/v0.2.0/SuperTV/SuperTVApp.swift
+8d36d72f4a399442d0f1cc4eb93c79bdc32aba1fd757e1a6c8398f5d971798f4  releases/v0.2.0/scripts/verify-source.py
+e0be2407ad152c3e467058d8ff71a063d27f34de2261298a273369b5872e503f  releases/v0.2.0/tests/CoreSmoke.swift
+a82faaeda0ba789955297010201345e437cc044138246ddfcfad6fc26a250600  releases/v0.2.0/tests/UITestSuperTV.swift
+4fd4c1232a8e636cd95494eece0cddbf681342ed5ff47d77e1f57b9b5d23afc1  releases/v0.2.0/tests/import-example.json

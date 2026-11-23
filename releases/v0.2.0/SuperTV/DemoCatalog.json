@@ -1,0 +1,21 @@
+{
+  "shows": [
+    {
+      "id": "demo-bip-bop",
+      "title": "演示系列 · Bip Bop",
+      "subtitle": "Apple 官方 HLS 色卡样片，用于测试分集与续播，不是红果短剧。",
+      "episodes": [
+        {
+          "id": "episode-1",
+          "title": "第 1 集 · 计时色卡",
+          "streamURL": "https://devstreaming-cdn.apple.com/videos/streaming/examples/bipbop_4x3/bipbop_4x3_variant.m3u8"
+        },
+        {
+          "id": "episode-2",
+          "title": "第 2 集 · 同一测试素材",
+          "streamURL": "https://devstreaming-cdn.apple.com/videos/streaming/examples/bipbop_4x3/bipbop_4x3_variant.m3u8"
+        }
+      ]
+    }
+  ]
+}
