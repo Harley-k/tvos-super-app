@@ -195,6 +195,9 @@ private final class SourceDirectoryModel: ObservableObject {
         } catch where Task.isCancelled {
             status = ""
         } catch {
+            #if DEBUG
+            NSLog("SuperTV managed catalog update failed: %@ %d", (error as NSError).domain, (error as NSError).code)
+            #endif
             status = "更新未完成，仍可使用上一次保存的片源目录。"
         }
     }
@@ -250,9 +253,14 @@ private struct SourceDirectoryScreen: View {
                 .disabled(model.refreshing || model.catalog == nil)
                 .accessibilityIdentifier("source-directory-refresh")
                 .trialDefaultFocus(true, in: directoryFocus)
-                Text(model.status.isEmpty ? "本机目录 · 第 \(model.catalog?.revision ?? 0) 版" : model.status)
+                let revision = model.catalog?.revision ?? 0
+                Text("本机目录 · 第 \(revision) 版")
                     .font(.footnote).foregroundStyle(.secondary)
-                    .accessibilityIdentifier("source-directory-status")
+                    .accessibilityIdentifier("source-directory-revision-\(revision)")
+                if !model.status.isEmpty {
+                    Text(model.status).font(.footnote).foregroundStyle(.secondary)
+                        .accessibilityIdentifier("source-directory-status")
+                }
                 ForEach(model.catalog?.sources ?? []) { source in
                     NavigationLink {
                         DetailScreen(show: source.show, rightsURL: source.rightsURL, remove: {})

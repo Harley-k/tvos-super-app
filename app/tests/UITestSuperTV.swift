@@ -100,9 +100,8 @@ final class SuperTVUITests: XCTestCase {
         try choose("source-directory", in: app)
         // Manual check before opening a source; auto checks are disabled only for this test.
         try choose("source-directory-refresh", in: app)
-        let status = element("source-directory-status", in: app)
-        let updated = XCTNSPredicateExpectation(predicate: NSPredicate(format: "label CONTAINS %@", "已刷新"), object: status)
-        XCTAssertEqual(XCTWaiter.wait(for: [updated], timeout: 18), .completed)
+        XCTAssertTrue(element("source-directory-revision-2", in: app).waitForExistence(timeout: 18),
+                      "GitHub revision not applied: \(element("source-directory-status", in: app).debugDescription)")
         try choose("source-managed-big-buck-bunny", in: app)
         try choose("episode-feature", in: app)
         let clock = element("playback-progress", in: app)

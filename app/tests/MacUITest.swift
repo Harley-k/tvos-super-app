@@ -70,9 +70,12 @@ final class MacImportPlaybackTests: XCTestCase {
             click("source-directory")
             if index == 0 {
                 click("source-directory-refresh")
-                let state = XCTNSPredicateExpectation(
-                    predicate: NSPredicate(format: "label CONTAINS %@", "已刷新"), object: item("source-directory-status"))
-                XCTAssertEqual(XCTWaiter.wait(for: [state], timeout: 18), .completed)
+                XCTAssertTrue(item("source-directory-revision-2").waitForExistence(timeout: 18),
+                              "GitHub revision not applied: \(item("source-directory-status").debugDescription)")
+                app.terminate(); app.launch()
+                click("source-directory")
+                XCTAssertTrue(item("source-directory-revision-2").waitForExistence(timeout: 6),
+                              "Cached GitHub revision missing after app relaunch")
             }
             click("source-managed-" + id)
             click("episode-feature")
