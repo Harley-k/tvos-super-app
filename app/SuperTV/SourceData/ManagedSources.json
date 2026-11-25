@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+  "revision": 1,
+  "sources": [
+    {
+      "id": "big-buck-bunny",
+      "title": "Big Buck Bunny · 大雄兔",
+      "publisher": "(c) copyright 2008, Blender Foundation / www.bigbuckbunny.org · CC BY 3.0",
+      "rightsURL": "https://peach.blender.org/about/",
+      "kind": "vod",
+      "episodes": [
+        {
+          "id": "feature",
+          "title": "正片",
+          "streamURL": "https://video.blender.org/object-storage/web_videos/bf1f3fb5-b119-4f9f-9930-8e20e892b898-480.mp4"
+        }
+      ]
+    },
+    {
+      "id": "spring",
+      "title": "Spring · 春",
+      "publisher": "© Blender Foundation | cloud.blender.org/spring · CC BY 4.0",
+      "rightsURL": "https://studio.blender.org/projects/spring/pages/about/",
+      "kind": "vod",
+      "episodes": [
+        {
+          "id": "feature",
+          "title": "正片",
+          "streamURL": "https://video.blender.org/object-storage/web_videos/3d95fb3d-c866-42c8-9db1-fe82f48ccb95-480.mp4"
+        }
+      ]
+    },
+    {
+      "id": "sintel",
+      "title": "Sintel · 辛特尔",
+      "publisher": "© copyright Blender Foundation | www.sintel.org · CC BY 3.0",
+      "rightsURL": "https://durian.blender.org/sharing/",
+      "kind": "vod",
+      "episodes": [
+        {
+          "id": "feature",
+          "title": "正片",
+          "streamURL": "https://video.blender.org/object-storage/web_videos/0eb052d0-fd51-43e6-aa33-ecdbf77a5d40-480.mp4"
+        }
+      ]
+    }
+  ]
+}
