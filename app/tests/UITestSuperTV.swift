@@ -93,6 +93,23 @@ final class SuperTVUITests: XCTestCase {
         guard target.hasFocus else { throw ProbeFailure.focus }
     }
 
+
+    @MainActor
+    func testManagedSourcesManualRefreshAndNativePlayback() throws {
+        let app = startCleanApp(skipAutoSourceRefresh: true)
+        try choose("source-directory", in: app)
+        // Manual check before opening a source; auto checks are disabled only for this test.
+        try choose("source-directory-refresh", in: app)
+        let status = element("source-directory-status", in: app)
+        let updated = XCTNSPredicateExpectation(predicate: NSPredicate(format: "label CONTAINS %@", "已刷新"), object: status)
+        XCTAssertEqual(XCTWaiter.wait(for: [updated], timeout: 18), .completed)
+        try choose("source-managed-big-buck-bunny", in: app)
+        try choose("episode-feature", in: app)
+        let clock = element("playback-progress", in: app)
+        let initial = try waitForSeconds(clock, timeout: 12) { $0 >= 0 }
+        _ = try waitForSeconds(clock, timeout: 32) { $0 >= initial + 2 }
+    }
+
     @MainActor
     func testMissingMediaShowsRecoverablePlaybackFailure() throws {
         let app = startCleanApp(badMedia: true)
@@ -105,10 +122,11 @@ final class SuperTVUITests: XCTestCase {
     }
 
     @MainActor
-    private func startCleanApp(badMedia: Bool = false) -> XCUIApplication {
+    private func startCleanApp(badMedia: Bool = false, skipAutoSourceRefresh: Bool = false) -> XCUIApplication {
         continueAfterFailure = false
         let app = XCUIApplication()
         app.launchEnvironment["SUPERTV_UI_TEST_SUITE"] = "SuperTV.UI.\(UUID().uuidString)"
+        if skipAutoSourceRefresh { app.launchEnvironment["SUPERTV_UI_SKIP_AUTO_SOURCE_REFRESH"] = "1" }
         if badMedia { app.launchEnvironment["SUPERTV_UI_BAD_MEDIA"] = "1" }
         app.launch()
         return app

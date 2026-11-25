@@ -4,6 +4,9 @@
     classes = {};
     objectVersion = 56;
     objects = {
+        B10000000000000000000001 = {isa = PBXBuildFile; fileRef = B20000000000000000000001; };
+        B10000000000000000000002 = {isa = PBXBuildFile; fileRef = B20000000000000000000001; };
+        B20000000000000000000001 = {isa = PBXFileReference; lastKnownFileType = folder; path = SourceData; sourceTree = "<group>"; };
         A10000000000000000000001 = {isa = PBXBuildFile; fileRef = A20000000000000000000001; };
         A10000000000000000000002 = {isa = PBXBuildFile; fileRef = A20000000000000000000002; };
         A10000000000000000000003 = {isa = PBXBuildFile; fileRef = A20000000000000000000003; };
@@ -28,18 +31,18 @@
         A20000000000000000000009 = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SuperTVUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
         A2000000000000000000000A = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "SuperTV-macOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
         A30000000000000000000001 = {isa = PBXGroup; children = (A30000000000000000000002, A30000000000000000000004, A30000000000000000000003); sourceTree = "<group>"; };
-        A30000000000000000000002 = {isa = PBXGroup; children = (A20000000000000000000001, A20000000000000000000002, A20000000000000000000003, A20000000000000000000004, A20000000000000000000005, A20000000000000000000007); path = SuperTV; sourceTree = "<group>"; };
+        A30000000000000000000002 = {isa = PBXGroup; children = (A20000000000000000000001, A20000000000000000000002, A20000000000000000000003, A20000000000000000000004, A20000000000000000000005, A20000000000000000000007, B20000000000000000000001); path = SuperTV; sourceTree = "<group>"; };
         A30000000000000000000003 = {isa = PBXGroup; children = (A20000000000000000000006, A20000000000000000000009, A2000000000000000000000A, A20000000000000000000029); name = Products; sourceTree = "<group>"; };
         A30000000000000000000004 = {isa = PBXGroup; children = (A20000000000000000000008, A20000000000000000000028); path = tests; sourceTree = "<group>"; };
         A40000000000000000000001 = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (A10000000000000000000001, A10000000000000000000002, A10000000000000000000003); runOnlyForDeploymentPostprocessing = 0; };
         A40000000000000000000002 = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
-        A40000000000000000000003 = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (A10000000000000000000004, A10000000000000000000005, A10000000000000000000006); runOnlyForDeploymentPostprocessing = 0; };
+        A40000000000000000000003 = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (A10000000000000000000004, A10000000000000000000005, A10000000000000000000006, B10000000000000000000001); runOnlyForDeploymentPostprocessing = 0; };
         A40000000000000000000004 = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (A10000000000000000000007); runOnlyForDeploymentPostprocessing = 0; };
         A40000000000000000000005 = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
         A40000000000000000000006 = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
         A40000000000000000000007 = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (A10000000000000000000008, A10000000000000000000009, A1000000000000000000000A); runOnlyForDeploymentPostprocessing = 0; };
         A40000000000000000000008 = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
-        A40000000000000000000009 = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (A1000000000000000000000B, A1000000000000000000000C, A1000000000000000000000D); runOnlyForDeploymentPostprocessing = 0; };
+        A40000000000000000000009 = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (A1000000000000000000000B, A1000000000000000000000C, A1000000000000000000000D, B10000000000000000000002); runOnlyForDeploymentPostprocessing = 0; };
         A50000000000000000000001 = {
             isa = PBXNativeTarget;
             buildConfigurationList = A70000000000000000000002;
@@ -99,7 +102,7 @@
             isa = XCBuildConfiguration; name = Debug;
             buildSettings = {
                 CODE_SIGN_STYLE = Automatic; GENERATE_INFOPLIST_FILE = YES;
-                CURRENT_PROJECT_VERSION = 3; MARKETING_VERSION = 0.3.0;
+                CURRENT_PROJECT_VERSION = 4; MARKETING_VERSION = 0.3.1;
                 INFOPLIST_KEY_CFBundleDisplayName = "短剧放映厅"; PRODUCT_NAME = "$(TARGET_NAME)";
                 PRODUCT_BUNDLE_IDENTIFIER = org.example.supertvdemo;
                 SUPPORTED_PLATFORMS = "appletvos appletvsimulator";
@@ -110,7 +113,7 @@
             isa = XCBuildConfiguration; name = Release;
             buildSettings = {
                 CODE_SIGN_STYLE = Automatic; GENERATE_INFOPLIST_FILE = YES;
-                CURRENT_PROJECT_VERSION = 3; MARKETING_VERSION = 0.3.0;
+                CURRENT_PROJECT_VERSION = 4; MARKETING_VERSION = 0.3.1;
                 INFOPLIST_KEY_CFBundleDisplayName = "短剧放映厅"; PRODUCT_NAME = "$(TARGET_NAME)";
                 PRODUCT_BUNDLE_IDENTIFIER = org.example.supertvdemo;
                 SUPPORTED_PLATFORMS = "appletvos appletvsimulator";
@@ -121,7 +124,7 @@
             isa = XCBuildConfiguration; name = Debug;
             buildSettings = {
                 CODE_SIGN_STYLE = Automatic; GENERATE_INFOPLIST_FILE = YES;
-                CURRENT_PROJECT_VERSION = 3; MARKETING_VERSION = 0.3.0;
+                CURRENT_PROJECT_VERSION = 4; MARKETING_VERSION = 0.3.1;
                 PRODUCT_BUNDLE_IDENTIFIER = org.example.supertvdemo.uitests;
                 PRODUCT_NAME = "$(TARGET_NAME)";
                 SUPPORTED_PLATFORMS = "appletvos appletvsimulator";
@@ -133,7 +136,7 @@
             isa = XCBuildConfiguration; name = Release;
             buildSettings = {
                 CODE_SIGN_STYLE = Automatic; GENERATE_INFOPLIST_FILE = YES;
-                CURRENT_PROJECT_VERSION = 3; MARKETING_VERSION = 0.3.0;
+                CURRENT_PROJECT_VERSION = 4; MARKETING_VERSION = 0.3.1;
                 PRODUCT_BUNDLE_IDENTIFIER = org.example.supertvdemo.uitests;
                 PRODUCT_NAME = "$(TARGET_NAME)";
                 SUPPORTED_PLATFORMS = "appletvos appletvsimulator";
@@ -146,7 +149,7 @@
             buildSettings = {
                 SDKROOT = macosx; SUPPORTED_PLATFORMS = macosx; MACOSX_DEPLOYMENT_TARGET = 14.0;
                 CODE_SIGN_STYLE = Automatic; GENERATE_INFOPLIST_FILE = YES;
-                CURRENT_PROJECT_VERSION = 3; MARKETING_VERSION = 0.3.0;
+                CURRENT_PROJECT_VERSION = 4; MARKETING_VERSION = 0.3.1;
                 INFOPLIST_KEY_CFBundleDisplayName = "短剧放映厅";
                 INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.entertainment";
                 PRODUCT_BUNDLE_IDENTIFIER = org.example.supertvdemo.macos; PRODUCT_NAME = "$(TARGET_NAME)";
@@ -158,7 +161,7 @@
             buildSettings = {
                 SDKROOT = macosx; SUPPORTED_PLATFORMS = macosx; MACOSX_DEPLOYMENT_TARGET = 14.0;
                 CODE_SIGN_STYLE = Automatic; GENERATE_INFOPLIST_FILE = YES;
-                CURRENT_PROJECT_VERSION = 3; MARKETING_VERSION = 0.3.0;
+                CURRENT_PROJECT_VERSION = 4; MARKETING_VERSION = 0.3.1;
                 INFOPLIST_KEY_CFBundleDisplayName = "短剧放映厅";
                 INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.entertainment";
                 PRODUCT_BUNDLE_IDENTIFIER = org.example.supertvdemo.macos; PRODUCT_NAME = "$(TARGET_NAME)";
@@ -192,7 +195,7 @@
             isa = XCBuildConfiguration; name = Debug;
             buildSettings = {
                 CODE_SIGN_STYLE = Automatic; GENERATE_INFOPLIST_FILE = YES;
-                CURRENT_PROJECT_VERSION = 3; MARKETING_VERSION = 0.3.0;
+                CURRENT_PROJECT_VERSION = 4; MARKETING_VERSION = 0.3.1;
                 PRODUCT_BUNDLE_IDENTIFIER = org.example.supertvdemo.macos.uitests;
                 PRODUCT_NAME = "$(TARGET_NAME)";
                 SDKROOT = macosx; MACOSX_DEPLOYMENT_TARGET = 14.0; SUPPORTED_PLATFORMS = macosx;
@@ -204,7 +207,7 @@
             isa = XCBuildConfiguration; name = Release;
             buildSettings = {
                 CODE_SIGN_STYLE = Automatic; GENERATE_INFOPLIST_FILE = YES;
-                CURRENT_PROJECT_VERSION = 3; MARKETING_VERSION = 0.3.0;
+                CURRENT_PROJECT_VERSION = 4; MARKETING_VERSION = 0.3.1;
                 PRODUCT_BUNDLE_IDENTIFIER = org.example.supertvdemo.macos.uitests;
                 PRODUCT_NAME = "$(TARGET_NAME)";
                 SDKROOT = macosx; MACOSX_DEPLOYMENT_TARGET = 14.0; SUPPORTED_PLATFORMS = macosx;

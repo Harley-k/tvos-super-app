@@ -86,6 +86,7 @@ private final class LibraryModel: ObservableObject {
 @MainActor
 struct CatalogScreen: View {
     @StateObject private var library = LibraryModel()
+    @StateObject private var directory = SourceDirectoryModel()
     @State private var searching = false
     @FocusState private var searchFocused: Bool
     @Namespace private var homeFocus
@@ -95,7 +96,7 @@ struct CatalogScreen: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 34) {
                     VStack(alignment: .leading, spacing: 12) {
-                        Label("私家放映厅 · 0.3", systemImage: "tv")
+                        Label("私家放映厅 · 0.3.1", systemImage: "tv")
                             .font(.callout.weight(.semibold)).foregroundStyle(.cyan)
                         Text("短剧放映厅").font(.largeTitle.weight(.bold))
                         Text("从片库选一部直接播放；也可以添加你有权观看的直播或短剧清单。")
@@ -111,6 +112,10 @@ struct CatalogScreen: View {
                             Label("导入片源", systemImage: "plus.circle")
                         }
                         .accessibilityIdentifier("source-import")
+                        NavigationLink { SourceDirectoryScreen(model: directory) } label: {
+                            Label("精选片源", systemImage: "list.bullet.rectangle")
+                        }
+                        .accessibilityIdentifier("source-directory")
                         if searching {
                             TextField("输入剧名或剧集", text: $library.query).focused($searchFocused)
                         }
@@ -138,6 +143,128 @@ struct CatalogScreen: View {
                 DetailScreen(show: show) { try library.remove(show.id) }
             }
         }
+    }
+}
+
+
+@MainActor
+private final class SourceDirectoryModel: ObservableObject {
+    @Published private(set) var catalog: ManagedCatalog?
+    @Published private(set) var status = ""
+    @Published private(set) var refreshing = false
+
+    private static let feed = URL(string: "https://raw.githubusercontent.com/Harley-k/tvos-super-app/public-sources-v1/sources/v1/catalog.json")!
+    private static let approvedMediaHosts: Set<String> = ["video.blender.org"]
+    private let store: ManagedCatalogStore?
+    private let defaults = TrialDefaults.playback
+    private let lastAttempt = "SuperTV.managedCatalogue.lastAttempt.v1"
+
+    init() {
+        let cache = TrialDefaults.libraryURL.deletingLastPathComponent().appendingPathComponent("ManagedSources.json")
+        if let url = Bundle.main.url(forResource: "ManagedSources", withExtension: "json", subdirectory: "SourceData"),
+           let baseline = try? Data(contentsOf: url),
+           let storage = try? ManagedCatalogStore(bundled: baseline, cacheURL: cache, allowedMediaHosts: Self.approvedMediaHosts) {
+            store = storage
+            catalog = storage.catalog
+        } else {
+            store = nil
+            status = "随应用附带的片源目录未能读取。离线影片和手动导入仍可使用。"
+        }
+    }
+
+    func refresh(manual: Bool) async {
+        guard let store, !refreshing else { return }
+        if !manual {
+            #if DEBUG
+            if TrialDefaults.debugSuite != nil,
+               ProcessInfo.processInfo.environment["SUPERTV_UI_SKIP_AUTO_SOURCE_REFRESH"] == "1" { return }
+            #endif
+            let elapsed = Date().timeIntervalSince1970 - defaults.double(forKey: lastAttempt)
+            if elapsed >= 0 && elapsed < 6 * 60 * 60 { return }
+        }
+        refreshing = true
+        defaults.set(Date().timeIntervalSince1970, forKey: lastAttempt)
+        status = "正在检查片源…"
+        defer { refreshing = false }
+        do {
+            let bytes = try await fetch()
+            try Task.checkCancellation()
+            let changed = try store.apply(bytes)
+            catalog = store.catalog
+            status = changed ? "片源已刷新 · 目录第 \(store.catalog.revision) 版" : "当前已是最新目录 · 第 \(store.catalog.revision) 版"
+        } catch where Task.isCancelled {
+            status = ""
+        } catch {
+            status = "更新未完成，仍可使用上一次保存的片源目录。"
+        }
+    }
+
+    private func fetch() async throws -> Data {
+        let config = URLSessionConfiguration.ephemeral
+        config.timeoutIntervalForRequest = 10
+        config.timeoutIntervalForResource = 15
+        config.urlCache = nil
+        config.httpCookieStorage = nil
+        config.httpShouldSetCookies = false
+        config.urlCredentialStorage = nil
+        let session = URLSession(configuration: config)
+        defer { session.invalidateAndCancel() }
+        let request = URLRequest(url: Self.feed, cachePolicy: .reloadIgnoringLocalCacheData)
+        let (bytes, response) = try await session.bytes(for: request, delegate: RejectSourceRedirects())
+        guard let index = response as? HTTPURLResponse, index.statusCode == 200,
+              response.url == Self.feed,
+              index.expectedContentLength <= Int64(CatalogImport.byteLimit)
+        else { throw URLError(.badServerResponse) }
+        var body = Data()
+        for try await byte in bytes {
+            guard body.count < CatalogImport.byteLimit else { throw CatalogImport.tooLarge }
+            body.append(byte)
+        }
+        return body
+    }
+}
+
+private final class RejectSourceRedirects: NSObject, URLSessionTaskDelegate, @unchecked Sendable {
+    func urlSession(_ session: URLSession, task: URLSessionTask, willPerformHTTPRedirection response: HTTPURLResponse,
+                    newRequest request: URLRequest, completionHandler: @escaping (URLRequest?) -> Void) {
+        completionHandler(nil)
+    }
+}
+
+@MainActor
+private struct SourceDirectoryScreen: View {
+    @ObservedObject var model: SourceDirectoryModel
+    @Namespace private var directoryFocus
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 22) {
+                Text("精选片源").font(.largeTitle.weight(.bold))
+                Text("首开自带可选影片。这里显示已核实许可的联网片源，不是 B 站、红果、抖音或电视台官方频道目录。")
+                    .font(.callout).foregroundStyle(.secondary)
+                Button {
+                    Task { await model.refresh(manual: true) }
+                } label: {
+                    Label("更新片源", systemImage: "arrow.clockwise")
+                }
+                .disabled(model.refreshing || model.catalog == nil)
+                .accessibilityIdentifier("source-directory-refresh")
+                .trialDefaultFocus(true, in: directoryFocus)
+                Text(model.status.isEmpty ? "本机目录 · 第 \(model.catalog?.revision ?? 0) 版" : model.status)
+                    .font(.footnote).foregroundStyle(.secondary)
+                    .accessibilityIdentifier("source-directory-status")
+                ForEach(model.catalog?.sources ?? []) { source in
+                    NavigationLink {
+                        DetailScreen(show: source.show, rightsURL: source.rightsURL, remove: {})
+                    } label: { ShowRow(show: source.show) }
+                    .accessibilityIdentifier("source-managed-" + source.id)
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 64).padding(.vertical, 38)
+        }
+        .trialFocusScope(directoryFocus)
+        .task { await model.refresh(manual: false) }
     }
 }
 
@@ -292,6 +419,7 @@ private struct PlaybackChoice: Identifiable {
 @MainActor
 private struct DetailScreen: View {
     let show: Drama
+    var rightsURL: URL? = nil
     let remove: () throws -> Void
     private let store = ResumeStore(defaults: TrialDefaults.playback)
     @State private var selection: PlaybackChoice?
@@ -309,6 +437,14 @@ private struct DetailScreen: View {
                 if show.category == "public" {
                     Text("WING IT! (2023) · (CC) Blender Foundation | studio.blender.org · CC BY 4.0：creativecommons.org/licenses/by/4.0/ · 原片未修改")
                         .font(.callout).foregroundStyle(.secondary)
+                }
+                if let rightsURL {
+                    #if os(macOS)
+                    Link("查看出版方的授权说明", destination: rightsURL).font(.callout)
+                    #else
+                    Text("授权说明：" + rightsURL.absoluteString)
+                        .font(.footnote).foregroundStyle(.secondary)
+                    #endif
                 }
                 Text(show.isLive ? "直播频道" : "分集").font(.title3.weight(.semibold))
                 ForEach(show.episodes) { episode in

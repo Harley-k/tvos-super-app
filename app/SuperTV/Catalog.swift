@@ -53,7 +53,7 @@ struct Drama: Codable, Hashable, Identifiable {
     let category: String?
 
     var isLive: Bool { category == "live" }
-    var isBundled: Bool { category == "demo" || category == "public" }
+    var isBundled: Bool { category == "demo" || category == "public" || id.hasPrefix("managed-") }
 
     var hasValidEpisodeIDs: Bool {
         var seen = Set<String>()
@@ -310,5 +310,96 @@ enum OfficialBilibili {
         components.queryItems = [URLQueryItem(name: "bvid", value: id),
                                  URLQueryItem(name: "autoplay", value: "0")]
         return components.url
+    }
+}
+
+
+/// Metadata from the project's own versioned directory, kept separate from user imports.
+struct ManagedCatalog: Equatable {
+    struct Source: Codable, Equatable, Identifiable {
+        let id: String
+        let title: String
+        let publisher: String
+        let rightsURL: URL
+        let kind: String
+        let episodes: [Episode]
+
+        var show: Drama {
+            Drama(id: "managed-" + id, title: title, subtitle: publisher + " · 官方授权来源",
+                  episodes: episodes, category: kind == "live" ? "live" : "public-directory")
+        }
+    }
+
+    let revision: Int
+    let sources: [Source]
+    var shows: [Drama] { sources.map(\.show) }
+
+    private struct Payload: Decodable {
+        let schemaVersion: Int
+        let revision: Int
+        let sources: [Source]
+    }
+
+    static func decode(_ data: Data, allowedMediaHosts: Set<String>) throws -> ManagedCatalog {
+        guard data.count <= CatalogImport.byteLimit else { throw CatalogImport.tooLarge }
+        let payload = try JSONDecoder().decode(Payload.self, from: data)
+        guard payload.schemaVersion == 1, (1...Int(Int32.max)).contains(payload.revision),
+              (1...80).contains(payload.sources.count),
+              Set(payload.sources.map(\.id)).count == payload.sources.count,
+              payload.sources.allSatisfy({ row in
+                  idIsValid(row.id) && labelIsValid(row.title) && labelIsValid(row.publisher)
+                      && CatalogImport.isHTTPS(row.rightsURL) && defaultPort(row.rightsURL)
+                      && ["live", "vod"].contains(row.kind) && (1...100).contains(row.episodes.count)
+                      && Set(row.episodes.map(\.id)).count == row.episodes.count
+                      && row.episodes.allSatisfy { episode in
+                          idIsValid(episode.id) && labelIsValid(episode.title) && episode.isHTTPS
+                              && defaultPort(episode.streamURL) && episode.streamURL.query == nil
+                              && [ "m3u8", "mp4", "m4v", "mov" ].contains(episode.streamURL.pathExtension.lowercased())
+                              && (episode.streamURL.host.map { allowedMediaHosts.contains($0.lowercased()) } ?? false)
+                      }
+              })
+        else { throw CatalogImport.invalidCatalog }
+        return ManagedCatalog(revision: payload.revision, sources: payload.sources)
+    }
+
+    private static func defaultPort(_ url: URL) -> Bool { url.port == nil || url.port == 443 }
+    private static func idIsValid(_ id: String) -> Bool {
+        let allowed: Set<UInt8> = Set("abcdefghijklmnopqrstuvwxyz0123456789_-".utf8)
+        return (1...64).contains(id.utf8.count) && id.utf8.allSatisfy(allowed.contains)
+    }
+    private static func labelIsValid(_ value: String) -> Bool {
+        !value.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            && value.count <= 120 && !value.unicodeScalars.contains(where: { CharacterSet.controlCharacters.contains($0) })
+    }
+}
+
+/// Caller owns access serialisation (the app uses MainActor). A failed write never replaces visible content.
+final class ManagedCatalogStore {
+    let cacheURL: URL
+    let allowedMediaHosts: Set<String>
+    private(set) var catalog: ManagedCatalog
+
+    init(bundled: Data, cacheURL: URL, allowedMediaHosts: Set<String>) throws {
+        self.cacheURL = cacheURL
+        self.allowedMediaHosts = allowedMediaHosts
+        let baseline = try ManagedCatalog.decode(bundled, allowedMediaHosts: allowedMediaHosts)
+        if let size = try? cacheURL.resourceValues(forKeys: [.fileSizeKey]).fileSize,
+           size <= CatalogImport.byteLimit,
+           let data = try? Data(contentsOf: cacheURL),
+           let cached = try? ManagedCatalog.decode(data, allowedMediaHosts: allowedMediaHosts),
+           cached.revision > baseline.revision {
+            catalog = cached
+        } else { catalog = baseline }
+    }
+
+    @discardableResult
+    func apply(_ bytes: Data) throws -> Bool {
+        let incoming = try ManagedCatalog.decode(bytes, allowedMediaHosts: allowedMediaHosts)
+        if incoming == catalog { return false }
+        guard incoming.revision > catalog.revision else { throw CatalogImport.invalidCatalog }
+        try FileManager.default.createDirectory(at: cacheURL.deletingLastPathComponent(), withIntermediateDirectories: true)
+        try bytes.write(to: cacheURL, options: .atomic)
+        catalog = incoming
+        return true
     }
 }

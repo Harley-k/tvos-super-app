@@ -1,4 +1,4 @@
-# SuperTV · 私家放映厅 0.3.0
+# SuperTV · 私家放映厅 0.3.1
 
 同一个原生播放器用于 Apple TV（tvOS 17+）和 Apple 芯片 Mac（macOS 14+）。能直接观看开放授权的《WING IT!》，也支持自有或获准的 HTTPS 直播和短剧。无需注册本 App 账号。
 
@@ -27,3 +27,15 @@
 | 开放授权片 | WING IT! · (CC) Blender Foundation / studio.blender.org · [原片](https://studio.blender.org/projects/wing-it/) · [作者授权](https://studio.blender.org/projects/wing-it/pages/licensing/) · [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)。23,049,214 字节，480p H.264/AAC，未改动。 |
 
 片库只存在本机。导入和外部播放时会联系相应来源；不要将长期访问令牌或私人的订阅地址提交到公开仓库。单份远程清单限 256 KiB，最多 160 个条目、每条 400 集/频道。JSON 详情见 [清单与续播](README-catalog.md)。这些内容在一台设备播通不代表其它平台、地区、会员内容或真机也已通过验收。
+
+## 精选片源与更新
+
+首页「精选片源」内置 3 部联网授权开放影片，另有首页可离线播放的《WING IT!》。本次新增影片是：
+
+- **大雄兔 Big Buck Bunny**：Blender Foundation，CC BY 3.0；[授权](https://peach.blender.org/about/)。
+- **春 Spring**：Blender Foundation，CC BY 4.0；[授权](https://studio.blender.org/projects/spring/pages/about/)。
+- **辛特尔 Sintel**：Blender Foundation，CC BY 3.0；[授权](https://durian.blender.org/sharing/)。
+
+这 3 路播放需要网络可到达发布方。首次进入「精选片源」时自动尝试更新，此后再次进入时最多 6 小时自动尝试一次；可随时点「更新片源」。网络故障或目录不合法时保留上次成功的目录；从没更新成功时保留安装包内的目录。目录离线可查看，但联网影片不能离线播。tvOS 可能清理缓存，之后可重新联网获取当前目录。
+
+维护员在本仓库的 [public-sources-v1 分支](https://github.com/Harley-k/tvos-super-app/tree/public-sources-v1/sources) 修改 `sources/v1/catalog.json`。新旧 revision 必须递增，恢复先前内容也使用新版本号；节目和分集的稳定 ID 不要重用或随地址变化。没有发新版 App 的情况下，现有发布方许可范围内可更新目录。它仅信任本仓库的固定 HTTPS 地址与本版明确允许的媒体域名（目前 `video.blender.org`），不接收其它 GitHub 清单、重定向、用户令牌或脚本。发行方将新的媒体域名纳入白名单前，需要发布新的应用版本。身处不同网络与地区的用户仍可能碰到发布方不可达；本版不提供网络限制绕过。个人导入与续播记录不被精选目录覆盖。

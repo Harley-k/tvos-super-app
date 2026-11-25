@@ -21,6 +21,12 @@ verify_film() {
 verify_film SuperTV
 xcrun swiftc -swift-version 5 SuperTV/Catalog.swift tests/CoreSmoke.swift -o "$work/core-smoke"
 "$work/core-smoke" SuperTV/DemoCatalog.json
+xcrun swiftc -swift-version 5 SuperTV/Catalog.swift tests/SourcesSmoke.swift -o "$work/sources-smoke"
+"$work/sources-smoke"
+feed_ref="da4f24cd801b4b6aa64ca82a017fa235ebf8539d"
+feed="https://raw.githubusercontent.com/Harley-k/tvos-super-app"
+curl --fail --silent --show-error --max-time 20 "$feed/$feed_ref/sources/v1/catalog.json" > "$work/immutable-catalog.json"
+python3 -c 'import json,sys; f=json.load(open(sys.argv[1])); assert f["revision"]==2 and len(f["sources"])==3; print("PASS: verified immutable GitHub directory revision 2, 3 sources")' "$work/immutable-catalog.json"
 sim="$(xcrun simctl list -j devices available | python3 -c '
 import sys,json,re
 candidates=[]
@@ -56,10 +62,11 @@ codesign --force --sign - "$app"
 codesign --verify --strict --verbose=2 "$app"
 exe="$app/Contents/MacOS/SuperTV-macOS"
 test "$(lipo -archs "$exe")" = arm64
-test "$(/usr/libexec/PlistBuddy -c 'Print CFBundleShortVersionString' "$app/Contents/Info.plist")" = 0.3.0
+test "$(/usr/libexec/PlistBuddy -c 'Print CFBundleShortVersionString' "$app/Contents/Info.plist")" = 0.3.1
 cmp "$app/Contents/Resources/Offline/demo-episode-1.mp4" SuperTV/Offline/demo-episode-1.mp4
 cmp "$app/Contents/Resources/Offline/demo-episode-2.mp4" SuperTV/Offline/demo-episode-2.mp4
 verify_film "$app/Contents/Resources"
+cmp "$app/Contents/Resources/SourceData/ManagedSources.json" SuperTV/SourceData/ManagedSources.json
 "$exe" > "$work/mac-release.log" 2>&1 & app_pid=$!
 sleep 5
 kill -0 "$app_pid"
@@ -70,6 +77,7 @@ xcodebuild "${project[@]}" "${tv[@]}" -configuration Release CODE_SIGNING_ALLOWE
 tvapp="$work/tv/Build/Products/Release-appletvsimulator/SuperTV.app"
 test "$(/usr/libexec/PlistBuddy -c 'Print DTPlatformName' "$tvapp/Info.plist")" = appletvsimulator
 verify_film "$tvapp"
+cmp "$tvapp/SourceData/ManagedSources.json" SuperTV/SourceData/ManagedSources.json
 dist="$root/build-delivery"; mkdir -p "$dist"
 ditto -c -k --keepParent "$app" "$dist/SuperTV-macOS-Apple-Silicon-adhoc.zip"
 ditto -c -k --keepParent "$tvapp" "$dist/SuperTV-tvOS-simulator-only.zip"
