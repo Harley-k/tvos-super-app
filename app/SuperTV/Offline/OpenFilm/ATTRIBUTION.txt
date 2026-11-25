@@ -1,0 +1,8 @@
+WING IT! (2023), Blender Studio
+(CC) Blender Foundation | studio.blender.org
+Original film: https://studio.blender.org/projects/wing-it/
+Author's licensing notice: https://studio.blender.org/projects/wing-it/pages/licensing/
+License: Creative Commons Attribution 4.0 International
+https://creativecommons.org/licenses/by/4.0/
+Source: video.blender.org, publisher-supplied 480p MP4, unmodified.
+No endorsement of SuperTV by Blender is claimed.

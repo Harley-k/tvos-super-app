@@ -1,0 +1,37 @@
+name: SuperTV playable release candidate
+on:
+  push:
+    branches: [feature/supertv-playable-03]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: supertv-playable-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  verify-and-package:
+    runs-on: macos-26
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - name: Build, drive both applications, then package
+        shell: bash
+        run: bash ci/supertv-rc.sh
+      - name: Downloadable builds (not notarized, no device signatures)
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: SuperTV-0.3.0-${{ github.sha }}
+          path: build-delivery/*
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 30
+      - name: Test diagnostics when verification fails
+        if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: SuperTV-test-diagnostics-${{ github.sha }}
+          path: build-diagnostics/*.log
+          if-no-files-found: ignore
+          retention-days: 7
